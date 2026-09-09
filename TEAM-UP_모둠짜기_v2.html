@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TEAM-UP | 우리의 모둠은?</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f6f4ef;color:#202124;font-family:system-ui,-apple-system,"Segoe UI","Noto Sans KR",sans-serif}
+.app{max-width:1180px;margin:auto;padding:28px 18px 50px}header{display:flex;justify-content:space-between;align-items:end;margin-bottom:22px}
+h1{margin:0;font-size:34px;letter-spacing:-1.5px}header p{margin:4px 0 0;color:#666}.badge{background:#202124;color:white;padding:8px 12px;border-radius:999px;font-size:13px;font-weight:800}
+.grid{display:grid;grid-template-columns:380px 1fr;gap:18px}.card{background:white;border:1px solid #dedbd2;border-radius:22px;padding:20px;box-shadow:0 12px 30px #00000010}
+h2{font-size:18px;margin:0 0 14px}label{display:block;font-size:14px;font-weight:800;margin:16px 0 7px}
+textarea{width:100%;min-height:330px;resize:vertical;border:1px solid #dedbd2;border-radius:14px;padding:14px;outline:none;background:#fcfcfa}
+textarea:focus{border-color:#635bff;box-shadow:0 0 0 3px #635bff20}.row{display:flex;justify-content:space-between;align-items:center}
+.counter{display:flex;align-items:center;gap:10px}.counter button{width:36px;height:36px;border:0;border-radius:10px;background:#f0eee8;font-size:20px}.counter strong{min-width:25px;text-align:center;font-size:20px}
+.condition{margin:9px 0;font-size:14px}.condition input{accent-color:#635bff}.primary,.secondary,.small{border:0;font-weight:800;border-radius:12px;cursor:pointer}
+.primary{width:100%;padding:15px;background:#635bff;color:white;font-size:16px;margin-top:16px}.secondary{padding:11px 14px;background:#f0eee8}.danger{background:#fff0f0;color:#a33}
+.status{font-size:13px;color:#666;margin-top:10px}.alert{display:none;margin-top:12px;padding:11px;border-radius:12px;background:#fff6d9;border:1px solid #f0d57a;font-size:13px}
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}.groups{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.group{border:1px solid #dedbd2;border-radius:18px;padding:15px;background:white}.group.locked{outline:3px solid #f2d264;background:#fffdf2}
+.group-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}.group-title{font-size:18px;font-weight:950}.group-count{font-size:12px;color:#666}
+.students{display:flex;flex-wrap:wrap;gap:7px;min-height:38px}.student{background:#f3f1eb;border-radius:999px;padding:7px 10px;font-size:13px;font-weight:700;cursor:grab}
+.group-actions{margin-top:12px}.small{padding:8px 10px;background:#fff0c4}.empty{min-height:540px;display:grid;place-items:center;text-align:center;color:#666}.emoji{font-size:70px}
+.presentation{display:none;position:fixed;inset:0;background:#171719;color:white;z-index:20;align-items:center;justify-content:center}.presentation.show{display:flex}
+.stage{text-align:center;width:90%}.top{opacity:.7;font-weight:800}.stage h2{font-size:clamp(48px,9vw,110px);margin:20px 0 10px}.names{font-size:clamp(20px,3vw,34px);line-height:1.6}.stage button{margin-top:30px;padding:12px 18px;border:0;border-radius:12px;font-weight:900}
+.flash{animation:pop .55s}@keyframes pop{from{transform:scale(.7);opacity:0}to{transform:scale(1);opacity:1}}
+.toast{display:none;position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#202124;color:white;padding:11px 16px;border-radius:999px;z-index:30;font-size:13px;font-weight:700}
+@media(max-width:850px){.grid{grid-template-columns:1fr}.groups{grid-template-columns:1fr}header{align-items:flex-start;gap:12px;flex-direction:column}}
+</style>
+</head>
+<body>
+<div class="app">
+<header><div><h1>🎲 TEAM-UP</h1><p>우리의 모둠은? · 빠르게 만들고, 선생님이 마지막으로 결정!</p></div><div class="badge">1학년 정보수업</div></header>
+<div class="grid">
+<section class="card">
+<h2>① 학생 명단</h2>
+<textarea id="roster" placeholder="학교 명단을 그대로 붙여넣으세요.
+
+예)
+1 김민수
+2 이서연
+3 박지훈
+4 최유진
+5 정우진"></textarea>
+<div class="row"><label style="margin-bottom:0">② 모둠 수</label><div class="counter"><button id="minus">−</button><strong id="groupCount">6</strong><button id="plus">＋</button></div></div>
+<label>③ 모둠 만들기 규칙</label>
+<div class="condition"><input type="checkbox" id="balance" checked> 모둠 인원을 최대한 균등하게</div>
+<div class="condition"><input type="checkbox" id="repeat"> 이전 모둠과 겹침 줄이기</div>
+<button class="primary" id="make">🎲 모둠 만들기</button>
+<div class="alert" id="alert"></div>
+<div class="status">💾 명단과 결과는 이 컴퓨터의 브라우저에 로컬 저장됩니다.</div>
+</section>
+<section class="card"><h2>④ 결과 확인 · 수정</h2><div id="resultArea"><div class="empty"><div><div class="emoji">🎯</div><h3>아직 모둠이 없어요</h3><p>명단을 붙여넣고 <b>「모둠 만들기」</b>를 눌러보세요.</p></div></div></div></section>
+</div></div>
+
+<div class="presentation" id="presentation"><div class="stage"><div class="top">🎉 OUR TEAM-UP</div><h2 id="presTitle">1모둠</h2><div class="names" id="presNames"></div><button onclick="closePresentation()">닫기</button></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const $=id=>document.getElementById(id);
+let groupCount=Number(localStorage.getItem("teamup_groupCount")||6);
+let groups=JSON.parse(localStorage.getItem("teamup_groups")||"null")||[];
+let lastGroups=JSON.parse(localStorage.getItem("teamup_lastGroups")||"null")||[];
+$("groupCount").textContent=groupCount;
+$("roster").value=localStorage.getItem("teamup_roster")||"";
+$("minus").onclick=()=>{if(groupCount>2){groupCount--;saveSettings();renderCount()}};
+$("plus").onclick=()=>{if(groupCount<20){groupCount++;saveSettings();renderCount()}};
+$("roster").oninput=saveSettings;
+function renderCount(){$("groupCount").textContent=groupCount}
+function saveSettings(){localStorage.setItem("teamup_groupCount",groupCount);localStorage.setItem("teamup_roster",$("roster").value)}
+function parseRoster(t){return t.split(/\n/).map(x=>x.trim()).filter(Boolean).map((line,i)=>{let m=line.match(/^(\d+)\s+(.+)$/);return{id:i+1,number:m?m[1]:"",name:(m?m[2]:line).trim()}})}
+function shuffle(a){let x=[...a];for(let i=x.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[x[i],x[j]]=[x[j],x[i]]}return x}
+function createGroups(students){let a=Array.from({length:groupCount},()=>[]);shuffle(students).forEach((s,i)=>a[i%groupCount].push(s));return a}
+$("make").onclick=makeGroups;
+function makeGroups(){
+ let students=parseRoster($("roster").value);$("alert").style.display="none";
+ if(!students.length)return alertBox("학생 명단을 먼저 입력해주세요.");
+ if(students.length<groupCount)return alertBox(`학생 ${students.length}명인데 모둠이 ${groupCount}개입니다. 모둠 수를 줄여주세요.`);
+ lastGroups=groups.length?JSON.parse(JSON.stringify(groups)):lastGroups;groups=createGroups(students);saveResult();renderGroups();toast("🎉 새로운 모둠이 만들어졌어요!");
+}
+function alertBox(m){$("alert").textContent="⚠️ "+m;$("alert").style.display="block"}
+function saveResult(){localStorage.setItem("teamup_groups",JSON.stringify(groups));localStorage.setItem("teamup_lastGroups",JSON.stringify(lastGroups));saveSettings()}
+function toast(m){$("toast").textContent=m;$("toast").style.display="block";clearTimeout(window.tt);window.tt=setTimeout(()=>$("toast").style.display="none",1800)}
+function renderGroups(){
+ let area=$("resultArea");area.innerHTML=`<div class="toolbar"><button class="secondary" onclick="reshuffleUnlocked()">🔄 잠기지 않은 모둠 다시 섞기</button><button class="secondary" onclick="startPresentation()">🎬 발표 모드</button><button class="secondary danger" onclick="resetAll()">초기화</button></div>`;
+ let wrap=document.createElement("div");wrap.className="groups";
+ groups.forEach((g,gi)=>{let c=document.createElement("div");c.className="group"+(g.locked?" locked":"");c.innerHTML=`<div class="group-head"><div class="group-title">${gi+1}모둠 ${g.locked?"🔒":""}</div><div class="group-count">${g.length}명</div></div><div class="students" data-group="${gi}">${g.map((s,si)=>`<span class="student" draggable="true" data-id="${s.id}" data-from="${gi}">${esc(s.number?s.number+" "+s.name:s.name)}</span>`).join("")}</div><div class="group-actions"><button class="small" onclick="toggleLock(${gi})">${g.locked?"🔓 잠금 해제":"🔒 모둠 잠금"}</button></div>`;wrap.appendChild(c)});area.appendChild(wrap);setupDnD()
+}
+function esc(s){return s.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
+function toggleLock(i){groups[i].locked=!groups[i].locked;saveResult();renderGroups()}
+function setupDnD(){
+ document.querySelectorAll(".student").forEach(e=>e.ondragstart=x=>x.dataTransfer.setData("text/plain",JSON.stringify({id:Number(e.dataset.id),from:Number(e.dataset.from)})));
+ document.querySelectorAll(".students").forEach(z=>{z.ondragover=e=>e.preventDefault();z.ondrop=e=>{e.preventDefault();let d=JSON.parse(e.dataTransfer.getData("text/plain")),to=Number(z.dataset.group);if(d.from===to||groups[to].locked||groups[d.from].locked)return toast("🔒 잠긴 모둠은 수정할 수 없어요.");let i=groups[d.from].findIndex(s=>s.id===d.id);if(i<0)return;let s=groups[d.from].splice(i,1)[0];groups[to].push(s);saveResult();renderGroups();toast("👆 학생을 이동했어요.")}})
+}
+function reshuffleUnlocked(){
+ let ids=groups.map((g,i)=>({g,i})).filter(x=>!x.g.locked);if(!ids.length)return toast("모든 모둠이 잠겨 있어요.");
+ let students=[];ids.forEach(x=>{students.push(...x.g);x.g.length=0});shuffle(students).forEach((s,i)=>ids[i%ids.length].g.push(s));saveResult();renderGroups();toast("🔄 다시 섞었어요!")
+}
+let pi=0;
+function startPresentation(){if(!groups.length)return;pi=0;$("presentation").classList.add("show");showPres()}
+function showPres(){let g=groups[pi%groups.length];$("presTitle").textContent=`${pi%groups.length+1}모둠`;$("presNames").textContent=g.map(s=>s.name).join(" · ");pi++;$("presTitle").classList.remove("flash");void $("presTitle").offsetWidth;$("presTitle").classList.add("flash")}
+function closePresentation(){$("presentation").classList.remove("show")}
+$("presentation").onclick=e=>{if(e.target.id==="presentation")closePresentation()}
+document.onkeydown=e=>{if($("presentation").classList.contains("show")){if(e.key==="Escape")closePresentation();if(e.key==="Enter"||e.key===" "){e.preventDefault();showPres()}}}
+function resetAll(){if(!confirm("저장된 명단과 결과를 모두 지울까요?"))return;["teamup_groups","teamup_lastGroups","teamup_roster"].forEach(k=>localStorage.removeItem(k));groups=[];lastGroups=[];$("roster").value="";$("resultArea").innerHTML='<div class="empty"><div><div class="emoji">🎯</div><h3>초기화했어요</h3><p>새로운 학생 명단을 입력해 주세요.</p></div></div>'}
+if(groups.length)renderGroups();
+</script>
+</body>
+</html>
